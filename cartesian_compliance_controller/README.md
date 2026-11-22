@@ -83,6 +83,8 @@ cartesian_compliance_controller:
     robot_base_link: "base_link"
     ft_sensor_ref_link: "sensor_link"
     compliance_ref_link: "tool0"
+    # Set true to express stiffness axes in robot_base_link instead of compliance_ref_link.
+    stiffness_in_base_frame: false
     joints:
       - joint1
       - joint2

@@ -108,6 +108,9 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 CartesianForceController::on_activate(const rclcpp_lifecycle::State & previous_state)
 {
   Base::on_activate(previous_state);
+  // Inactive callbacks ignore target messages. Never reuse a force command
+  // from a previous activation before the caller publishes its new target.
+  m_target_wrench.setZero();
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 

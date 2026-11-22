@@ -63,6 +63,7 @@ CartesianComplianceController::on_init()
   }
 
   auto_declare<std::string>("compliance_ref_link", "");
+  auto_declare<bool>("stiffness_in_base_frame", false);
 
   constexpr double default_lin_stiff = 500.0;
   constexpr double default_rot_stiff = 50.0;
@@ -167,11 +168,16 @@ ctrl::Vector6D CartesianComplianceController::computeComplianceError()
   tmp[5] = get_node()->get_parameter("stiffness.rot_z").as_double();
 
   m_stiffness = tmp.asDiagonal();
+  // A base-normal force task needs stiffness axes fixed in the same frame as
+  // its target wrench, independently of the tool's current orientation.
+  const ctrl::Matrix6D stiffness_in_base =
+    get_node()->get_parameter("stiffness_in_base_frame").as_bool()
+      ? m_stiffness : Base::displayInBaseLink(m_stiffness, m_compliance_ref_link);
 
   ctrl::Vector6D net_force =
 
     // Spring force in base orientation
-    Base::displayInBaseLink(m_stiffness, m_compliance_ref_link) * MotionBase::computeMotionError()
+    stiffness_in_base * MotionBase::computeMotionError()
 
     // Sensor and target force in base orientation
     + ForceBase::computeForceError();
